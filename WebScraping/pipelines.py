@@ -7,10 +7,14 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import pandas as pd
+from pathlib import Path
+
+from pathlib import Path
+import pandas as pd
 
 class WebscrapingPipeline:
     def __init__(self):
-        self.items= []
+        self.items = []
 
     def process_item(self, item, spider):
         self.items.append(item)
@@ -18,16 +22,22 @@ class WebscrapingPipeline:
 
     def close_spider(self, spider):
         df = pd.DataFrame(self.items)
+       
+        # Ensure the directory exists
+        output_dir = Path('WebScraping/excle_file')
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Construct the full path for the Excel file
+        output_file = output_dir / f"{spider.file_name}.xlsx"
+        
         try:
-            df.sort_values(by="Course_Name", axis=0,
-                           inplace=True, ascending=True)
-        except:
-            print("error")      
-        df.to_excel("excle_file/" + spider.file_name +  # "v1" +
-                        ".xlsx", index=False)
-        print("----------------------------------------")
-        print("Item exported sucessfully")
-        print("----------------------------------------")
+            # Save to Excel
+            df.to_excel(output_file, index=False)
+            print("----------------------------------------")
+            print("Item exported successfully to:", output_file)
+            print("----------------------------------------")
+        except Exception as e:
+            print(f"Failed to save Excel file: {e}")
 
 
 
