@@ -76,10 +76,21 @@ class FeeProcessor:
         """Extract and clean fee values."""
         if not value:
             return None
-            
+        total = None
         value = value.replace('2025', '')
         numbers = re.findall(r'\d+,*\d*', value)
-        return numbers[0] if numbers else None
+
+        if len(numbers) > 1:
+            total = int(numbers[0]) * int(numbers[1])
+       
+        duration_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:year|yr)', value, re.IGNORECASE)
+
+        if duration_match:
+            duration = float(duration_match.group(1))
+            total = total/duration
+            
+        print(total)
+        return total if total else None
 
 class WebscrapingItem(scrapy.Item):
     # Basic course information
@@ -105,7 +116,7 @@ class WebscrapingItem(scrapy.Item):
     
     # Fee information
     International_Fee = scrapy.Field(
-        input_processor=MapCompose(TextCleaner.clean_html),
+        input_processor=MapCompose(TextCleaner.clean_html, FeeProcessor.clean_fee),
         output_processor=TakeFirst()
     )
     Domestic_fee = scrapy.Field(
