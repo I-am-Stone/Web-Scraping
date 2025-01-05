@@ -48,17 +48,15 @@ class ExcelFileMerger:
                 print("Warning: Duplicates found in old file:")
                 print(duplicates)
             
-            df_new = df_new.set_index('Course Name')
-            df_old = df_old.set_index('Course Name')
+            df_new = df_new.set_index('Course Website')
+            df_old = df_old.set_index('Course Website')
             df_new.dropna(how="all", inplace=True)
             df_old.update(df_new)
             final_df = df_old.reset_index()
 
-            # Create output directory if it doesn't exist
             output_dir = Path('merger_file')
             output_dir.mkdir(exist_ok=True)
             
-            # Save merged file
             output_file = output_dir / output_path
             
             final_df.to_excel('merger_file/'+ output_path, engine='openpyxl', index=False)
@@ -71,7 +69,7 @@ class ExcelFileMerger:
 
 if __name__ == "__main__":
     merger = ExcelFileMerger(
-        old_file_path="/home/stone/Downloads/Charles Sturt 2024 old.xlsx",
-        new_file_path="/home/stone/Downloads/Charles Sturt University 2025.xlsx"
+        old_file_path="/home/stone/Downloads/Griffith University update23 AUS (2024).xlsx",
+        new_file_path="WebScraping/excle_file/Griffith Univeristy 2025.xlsx"
     )
-    merged_df = merger.merge_files("Charles Sturt University 2025 merged by name v2.xlsx")
+    merged_df = merger.merge_files("Griffith University 2025 merged.xlsx")

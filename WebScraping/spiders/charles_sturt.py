@@ -17,14 +17,11 @@ class CharlsSpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Set up Selenium with custom headers
         chrome_options = Options()
-        chrome_options.add_argument('--headless')  # Run headlessly
-        chrome_options.add_argument('window-size=1920x1080')  # Optional: Set window size
+        chrome_options.add_argument('--headless') 
+        chrome_options.add_argument('window-size=1920x1080') 
 
-        # Pass custom headers to Selenium (using Chrome DevTools Protocol or Profile)
         chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36')  # Custom User-Agent
-        # You can add other headers like Referer, Accept-Language, etc.
 
         self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
         self.driver.implicitly_wait(10)

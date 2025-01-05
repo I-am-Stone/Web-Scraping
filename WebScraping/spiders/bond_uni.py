@@ -16,6 +16,7 @@ from scrapy.http import Response
 class BondSpider(scrapy.Spider):
     name = 'bon'
     file_name = 'Bond University 2025'
+
     def start_requests(self):
         df = pd.read_excel('/home/stone/Downloads/2024_02_09_16_38_40_Bond_University_1.xlsx')
 
