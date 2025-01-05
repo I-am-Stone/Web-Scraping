@@ -48,8 +48,8 @@ class ExcelFileMerger:
                 print("Warning: Duplicates found in old file:")
                 print(duplicates)
             
-            df_new = df_new.set_index('Course Website')
-            df_old = df_old.set_index('Course Website')
+            df_new = df_new.set_index('Course Name')
+            df_old = df_old.set_index('Course Name')
             df_new.dropna(how="all", inplace=True)
             df_old.update(df_new)
             final_df = df_old.reset_index()
@@ -71,7 +71,7 @@ class ExcelFileMerger:
 
 if __name__ == "__main__":
     merger = ExcelFileMerger(
-        old_file_path="/home/stone/Downloads/University of Technology Sydney (UTS) - 2024(1).xlsx",
-        new_file_path="WebScraping/excle_file/University of technology sydney.xlsx"
+        old_file_path="/home/stone/Downloads/Charles Sturt 2024 old.xlsx",
+        new_file_path="/home/stone/Downloads/Charles Sturt University 2025.xlsx"
     )
-    merged_df = merger.merge_files("University of Technology Sydney merged 2025 v2.xlsx")
+    merged_df = merger.merge_files("Charles Sturt University 2025 merged by name v2.xlsx")

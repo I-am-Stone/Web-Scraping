@@ -80,17 +80,17 @@ class FeeProcessor:
         value = value.replace('2025', '')
         numbers = re.findall(r'\d+,*\d*', value)
 
-        if len(numbers) > 1:
-            total = int(numbers[0]) * int(numbers[1])
+        # if len(numbers) > 1:
+        #     total = int(numbers[0]) * int(numbers[1])
        
-        duration_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:year|yr)', value, re.IGNORECASE)
+        # duration_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:year|yr)', value, re.IGNORECASE)
 
-        if duration_match:
-            duration = float(duration_match.group(1))
-            total = total/duration
+        # if duration_match:
+        #     duration = float(duration_match.group(1))
+        #     total = total/duration
             
-        print(total)
-        return total if total else None
+        # print(total)
+        return numbers[0] if numbers else None
 
 class WebscrapingItem(scrapy.Item):
     # Basic course information
