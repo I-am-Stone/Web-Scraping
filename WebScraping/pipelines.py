@@ -12,6 +12,7 @@ from pathlib import Path
 from pathlib import Path
 import pandas as pd
 
+
 class WebscrapingPipeline:
     def __init__(self):
         self.items = []
@@ -22,14 +23,14 @@ class WebscrapingPipeline:
 
     def close_spider(self, spider):
         df = pd.DataFrame(self.items)
-       
+
         # Ensure the directory exists
-        output_dir = Path('WebScraping/excle_file')
+        output_dir = Path("WebScraping/excle_file")
         output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Construct the full path for the Excel file
         output_file = output_dir / f"{spider.file_name}.xlsx"
-        
+
         try:
             # Save to Excel
             df.to_excel(output_file, index=False)
@@ -38,7 +39,6 @@ class WebscrapingPipeline:
             print("----------------------------------------")
         except Exception as e:
             print(f"Failed to save Excel file: {e}")
-
 
 
 # from itemadapter import ItemAdapter
@@ -50,12 +50,12 @@ class WebscrapingPipeline:
 
 # class SpiderPipeline:
 #     """Pipeline for processing spider items and exporting to Excel."""
-    
+
 #     def __init__(self):
 #         """Initialize the pipeline with required attributes."""
 #         self.items: List[Dict[Any, Any]] = []
 #         self.logger = logging.getLogger(__name__)
-        
+
 #         # Define all possible columns to ensure they're included even if empty
 #         self.all_columns = [
 #             'Course_Website', 'Course_Name', 'Course_Description', 'Career',
@@ -71,7 +71,7 @@ class WebscrapingPipeline:
 #             'TOEFL_Overall', 'TOEFL_Reading', 'TOEFL_Writing', 'TOEFL_Speaking', 'TOEFL_Listening',
 #             'PTE_Overall', 'PTE_Reading', 'PTE_Writing', 'PTE_Speaking', 'PTE_Listening'
 #         ]
-        
+
 #         # Ensure export directory exists
 #         self.export_dir = "excel_file"
 #         os.makedirs(self.export_dir, exist_ok=True)
@@ -81,18 +81,18 @@ class WebscrapingPipeline:
 #         try:
 #             # Convert item to dict if it's not already
 #             item_dict = dict(ItemAdapter(item))
-            
+
 #             # Ensure all columns exist in the item
 #             for column in self.all_columns:
 #                 if column not in item_dict:
 #                     item_dict[column] = None
-                    
+
 #             self.items.append(item_dict)
 #             self.logger.debug(f"Successfully processed item: {item_dict.get('Course_Name', 'Unknown Course')}")
-            
+
 #         except Exception as e:
 #             self.logger.error(f"Error processing item: {str(e)}")
-            
+
 #         return item
 
 #     def close_spider(self, spider) -> None:
@@ -103,16 +103,16 @@ class WebscrapingPipeline:
 #         try:
 #             # Create DataFrame with all columns initialized
 #             df = pd.DataFrame(self.items, columns=self.all_columns)
-            
+
 #             # Sort by Course_Name if it exists
 #             if 'Course_Name' in df.columns:
 #                 df.sort_values(by="Course_Name", axis=0, inplace=True, ascending=True)
-            
+
 #             # Generate filename with timestamp
 #             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 #             filename = f"{spider.file_name}_{timestamp}.xlsx"
 #             filepath = os.path.join(self.export_dir, filename)
-            
+
 #             # Export to Excel with optimized settings
 #             with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
 #                 df.to_excel(
@@ -121,7 +121,7 @@ class WebscrapingPipeline:
 #                     sheet_name='Course Data',
 #                     float_format="%.2f"  # Format floating-point numbers
 #                 )
-                
+
 #                 # Auto-adjust column widths
 #                 worksheet = writer.sheets['Course Data']
 #                 for idx, col in enumerate(df.columns):
@@ -130,7 +130,7 @@ class WebscrapingPipeline:
 #                         len(str(col))
 #                     ) + 2
 #                     worksheet.column_dimensions[chr(65 + idx)].width = min(max_length, 50)
-            
+
 #             # Log success
 #             self.logger.info(f"""
 #             ----------------------------------------
@@ -140,7 +140,7 @@ class WebscrapingPipeline:
 #             - File: {filename}
 #             ----------------------------------------
 #             """)
-            
+
 #         except Exception as e:
 #             self.logger.error(f"""
 #             ----------------------------------------
