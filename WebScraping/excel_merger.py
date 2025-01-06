@@ -71,7 +71,7 @@ class ExcelFileMerger:
 
 if __name__ == "__main__":
     merger = ExcelFileMerger(
-        old_file_path="/home/stone/Downloads/Griffith University update23 AUS (2024).xlsx",
-        new_file_path="WebScraping/excle_file/Griffith Univeristy 2025.xlsx",
+        old_file_path="/home/stone/Downloads/James Cook University.xlsx",
+        new_file_path="WebScraping/excle_file/James Cook Univeristy 2025.xlsx",
     )
-    merged_df = merger.merge_files("Griffith University 2025 merged.xlsx")
+    merged_df = merger.merge_files("James Cook Univeristy 2025 merged.xlsx")
