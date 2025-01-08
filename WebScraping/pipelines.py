@@ -8,153 +8,98 @@
 from itemadapter import ItemAdapter
 import pandas as pd
 from pathlib import Path
-
-from pathlib import Path
-import pandas as pd
+from datetime import datetime
+import os
+from typing import List, Dict, Any
+import logging
 
 
 class WebscrapingPipeline:
+    """
+    Pipeline for processing the siper items and exporting data in excel
+    """
     def __init__(self):
-        self.items = []
+        self.items:list[Dict[Any,Any]] = []
+        self.logger = logging.getLogger(__name__)
 
-    def process_item(self, item, spider):
-        self.items.append(item)
+        self.all_columns = [
+            'Course_Website', 'Course_Name', 'Course_Description', 'Career',
+            'City', 'International_Fee', 'Domestic_fee', 'Currency',
+            'Intake_Month', 'Apply_Month', 'Study_Load', 'Duration_Term',
+            'Fee_Term', 'Duration', 'Study_mode', 'Course_Structure',
+            'Other_Requriment', 'Category', 'Sub_Category', 'Apply_Day',
+            'Fee_Year', 'Intake_Day', 'Language', 'Degree_level',
+            'Domestic_only', 'Other_Test', 'Academic_Score', 'Score_Type',
+            'Academic_Country', 'Score', 'Scholarship',
+            'IELTS_Overall', 'IELTS_Reading', 'IELTS_Writing', 'IELTS_Speaking', 'IELTS_Listening',
+            'TOEFL_Overall', 'TOEFL_Reading', 'TOEFL_Writing', 'TOEFL_Speaking', 'TOEFL_Listening',
+            'PTE_Overall', 'PTE_Reading', 'PTE_Writing', 'PTE_Speaking', 'PTE_Listening'
+        ]
+        self.exporting_file =Path("WebScraping/excle_file")
+        self.exporting_file.mkdir(parents=True, exist_ok=True)
+
+    def process_item(self, item:Dict[str,Any], spider) -> Dict[str,Any]:
+        """
+        Here we process each item and add to columans
+        """
+        try:
+            item_dict = dict(ItemAdapter(item))
+            for columan in self.all_columns:
+                if columan not in item_dict:
+                    item_dict[columan] = None
+            self.items.append(item_dict)
+            self.logger.debug(f"Successfully processed item: {item_dict.get('Course_Name', 'Unknown Course')}")
+
+        except Exception as e:
+            self.logger.error(f"Error processing item: {str(e)}")
+        
         return item
 
+
     def close_spider(self, spider):
-        df = pd.DataFrame(self.items)
-
-        # Ensure the directory exists
-        output_dir = Path("WebScraping/excle_file")
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Construct the full path for the Excel file
-        output_file = output_dir / f"{spider.file_name}.xlsx"
-
+        """
+        This exports data to excel
+        """
         try:
-            # Save to Excel
-            df.to_excel(output_file, index=False)
-            print("----------------------------------------")
-            print("Item exported successfully to:", output_file)
-            print("----------------------------------------")
+            df = pd.DataFrame(self.items, columns=self.all_columns)
+
+            if 'Course_Name' in df.columns:
+                df.sort_values(by="Course_Name", axis=0, inplace=True, ascending=True)
+            
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{spider.file_name}_{timestamp}.xlsx"
+            filepath = os.path.join(self.exporting_file, filename)
+
+            with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+                df.to_excel(
+                    writer,
+                    index=False,
+                    sheet_name='course',
+                )
+            self.logger.info(f"""
+            ----------------------------------------
+            Export Successful:
+            - Total items: {len(df)}
+            - Columns: {len(df.columns)}
+            - File: {filename}
+            ----------------------------------------
+            """)
+
         except Exception as e:
-            print(f"Failed to save Excel file: {e}")
+            self.logger.error(f"""
+            ----------------------------------------
+            return statistics about the exported data.""")
+        return {
+            'total_items': len(self.items),
+            'total_columns': len(self.all_columns),
+            'non_null_values': sum(1 for item in self.items if any(item.values()))
+        }
+    def get_export_stats(self) -> Dict[str, int]:
+        """Return statistics about the exported data."""
+        return {
+            'total_items': len(self.items),
+            'total_columns': len(self.all_columns),
+            'non_null_values': sum(1 for item in self.items if any(item.values()))
+        }
 
-
-# from itemadapter import ItemAdapter
-# import pandas as pd
-# from datetime import datetime
-# import os
-# from typing import List, Dict, Any
-# import logging
-
-# class SpiderPipeline:
-#     """Pipeline for processing spider items and exporting to Excel."""
-
-#     def __init__(self):
-#         """Initialize the pipeline with required attributes."""
-#         self.items: List[Dict[Any, Any]] = []
-#         self.logger = logging.getLogger(__name__)
-
-#         # Define all possible columns to ensure they're included even if empty
-#         self.all_columns = [
-#             'Course_Website', 'Course_Name', 'Course_Description', 'Career',
-#             'City', 'International_Fee', 'Domestic_fee', 'Currency',
-#             'Intake_Month', 'Apply_Month', 'Study_Load', 'Duration_Term',
-#             'Fee_Term', 'Duration', 'Study_mode', 'Course_Structure',
-#             'Other_Requriment', 'Category', 'Sub_Category', 'Apply_Day',
-#             'Fee_Year', 'Intake_Day', 'Language', 'Degree_level',
-#             'Domestic_only', 'Other_Test', 'Academic_Score', 'Score_Type',
-#             'Academic_Country', 'Score', 'Scholarship',
-#             # Language test scores
-#             'IELTS_Overall', 'IELTS_Reading', 'IELTS_Writing', 'IELTS_Speaking', 'IELTS_Listening',
-#             'TOEFL_Overall', 'TOEFL_Reading', 'TOEFL_Writing', 'TOEFL_Speaking', 'TOEFL_Listening',
-#             'PTE_Overall', 'PTE_Reading', 'PTE_Writing', 'PTE_Speaking', 'PTE_Listening'
-#         ]
-
-#         # Ensure export directory exists
-#         self.export_dir = "excel_file"
-#         os.makedirs(self.export_dir, exist_ok=True)
-
-#     def process_item(self, item: Dict[str, Any], spider) -> Dict[str, Any]:
-#         """Process each item and add it to the items list."""
-#         try:
-#             # Convert item to dict if it's not already
-#             item_dict = dict(ItemAdapter(item))
-
-#             # Ensure all columns exist in the item
-#             for column in self.all_columns:
-#                 if column not in item_dict:
-#                     item_dict[column] = None
-
-#             self.items.append(item_dict)
-#             self.logger.debug(f"Successfully processed item: {item_dict.get('Course_Name', 'Unknown Course')}")
-
-#         except Exception as e:
-#             self.logger.error(f"Error processing item: {str(e)}")
-
-#         return item
-
-#     def close_spider(self, spider) -> None:
-#         """
-#         Handle spider closure by creating and exporting DataFrame to Excel.
-#         Includes error handling and data validation.
-#         """
-#         try:
-#             # Create DataFrame with all columns initialized
-#             df = pd.DataFrame(self.items, columns=self.all_columns)
-
-#             # Sort by Course_Name if it exists
-#             if 'Course_Name' in df.columns:
-#                 df.sort_values(by="Course_Name", axis=0, inplace=True, ascending=True)
-
-#             # Generate filename with timestamp
-#             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-#             filename = f"{spider.file_name}_{timestamp}.xlsx"
-#             filepath = os.path.join(self.export_dir, filename)
-
-#             # Export to Excel with optimized settings
-#             with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
-#                 df.to_excel(
-#                     writer,
-#                     index=False,
-#                     sheet_name='Course Data',
-#                     float_format="%.2f"  # Format floating-point numbers
-#                 )
-
-#                 # Auto-adjust column widths
-#                 worksheet = writer.sheets['Course Data']
-#                 for idx, col in enumerate(df.columns):
-#                     max_length = max(
-#                         df[col].astype(str).apply(len).max(),
-#                         len(str(col))
-#                     ) + 2
-#                     worksheet.column_dimensions[chr(65 + idx)].width = min(max_length, 50)
-
-#             # Log success
-#             self.logger.info(f"""
-#             ----------------------------------------
-#             Export Successful:
-#             - Total items: {len(df)}
-#             - Columns: {len(df.columns)}
-#             - File: {filename}
-#             ----------------------------------------
-#             """)
-
-#         except Exception as e:
-#             self.logger.error(f"""
-#             ----------------------------------------
-#             Export Failed:
-#             - Error: {str(e)}
-#             - Items: {len(self.items)}
-#             ----------------------------------------
-#             """)
-#             raise
-
-#     def get_export_stats(self) -> Dict[str, int]:
-#         """Return statistics about the exported data."""
-#         return {
-#             'total_items': len(self.items),
-#             'total_columns': len(self.all_columns),
-#             'non_null_values': sum(1 for item in self.items if any(item.values()))
-#         }
+    
