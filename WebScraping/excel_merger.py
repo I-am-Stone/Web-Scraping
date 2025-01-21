@@ -22,9 +22,13 @@ class ExcelFileMerger:
             raise FileNotFoundError(f"New file not found: {new_file_path}")
 
     def clean_course_name(self, df: pd.DataFrame) -> pd.DataFrame:
-        if "Course Name" in df.columns:
-            df["Course Name"] = df["Course Name"].str.split("(").str[0].str.strip()
-        return df
+        try:
+            if "Course Name" in df.columns:
+                df["Course Name"] = df["Course Name"].str.split("(").str[0].str.strip()
+            return df
+        except:
+            return df
+
 
     def merge_files(self, output_path: str = "merged_output.xlsx") -> pd.DataFrame:
         """
@@ -39,7 +43,8 @@ class ExcelFileMerger:
         try:
             df_old = pd.read_excel(self.old_file_path, engine="openpyxl")
             df_new = pd.read_excel(self.new_file_path, engine="openpyxl")
-
+            print("DataFrame contents:", df_new)
+            print("DataFrame columns:", df_new.columns if df_new is not None else "DataFrame is None")
             df_new = self.clean_course_name(df_new)
 
             duplicates = df_old[df_old.index.duplicated()]
@@ -71,7 +76,7 @@ class ExcelFileMerger:
 
 if __name__ == "__main__":
     merger = ExcelFileMerger(
-        old_file_path="/home/stone/Downloads/James Cook University.xlsx",
-        new_file_path="WebScraping/excle_file/James Cook Univeristy 2025.xlsx",
+        old_file_path="/home/stone/Downloads/Swinburne University of Technology - 2024.xlsx",
+        new_file_path="WebScraping/excle_file/Swinburne University 2025 data.xlsx",
     )
-    merged_df = merger.merge_files("James Cook Univeristy 2025 merged.xlsx")
+    merged_df = merger.merge_files("Swinburne University 2025 merged v2.xlsx")

@@ -14,6 +14,32 @@ from typing import List, Dict, Any
 import logging
 
 
+class MergercrapingPipeline:
+    def __init__(self):
+        self.items = []
+
+    def process_item(self, item, spider):
+        self.items.append(item)
+        return item
+
+    def close_spider(self, spider):
+        df = pd.DataFrame(self.items)
+       
+        output_dir = Path('WebScraping/excle_file')
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        output_file = output_dir / f"{spider.file_name}.xlsx"
+        
+        try:
+            # Save to Excel
+            df.to_excel(output_file, index=False)
+            print("----------------------------------------")
+            print("Item exported successfully to:", output_file)
+            print("----------------------------------------")
+        except Exception as e:
+            print(f"Failed to save Excel file: {e}")
+
+
 class WebscrapingPipeline:
     """
     Pipeline for processing the siper items and exporting data in excel
@@ -66,8 +92,7 @@ class WebscrapingPipeline:
             if 'Course_Name' in df.columns:
                 df.sort_values(by="Course_Name", axis=0, inplace=True, ascending=True)
             
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{spider.file_name}_{timestamp}.xlsx"
+            filename = f"{spider.file_name}.xlsx"
             filepath = os.path.join(self.exporting_file, filename)
 
             with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
