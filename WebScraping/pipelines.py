@@ -101,6 +101,7 @@ class WebscrapingPipeline:
                     index=False,
                     sheet_name='course',
                 )
+            print("Debug - Cities in DataFrame:", df['City'].tolist())
             self.logger.info(f"""
             ----------------------------------------
             Export Successful:

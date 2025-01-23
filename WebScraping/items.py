@@ -116,7 +116,7 @@ class WebscrapingItem(scrapy.Item):
         output_processor=TakeFirst()
     )
     City = scrapy.Field(
-        input_processor=MapCompose(TextCleaner.clean_html, lambda x: x.replace('Distance Learning', '')),
+        input_processor=MapCompose(TextCleaner.clean_html),
         output_processor=TakeFirst()
     )
     
@@ -153,7 +153,7 @@ class WebscrapingItem(scrapy.Item):
     
     # Intake information
     Intake_Month = scrapy.Field(
-        input_processor=MapCompose(TextCleaner.clean_html, TextCleaner.remove_numbers),
+        input_processor=MapCompose(TextCleaner.clean_html),
         output_processor=TakeFirst()
     )
     Intake_Day = scrapy.Field()
