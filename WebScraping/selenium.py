@@ -18,6 +18,15 @@ class SeleniumBase:
     """
 
     def __init__(self):
+        """
+            Initializes the SeleniumBase class by setting up a headless Chrome WebDriver
+            with specified options such as window size and user-agent. Installs the ChromeDriver
+            using ChromeDriverManager and sets an implicit wait for the driver.
+
+            Attributes:
+                driver (webdriver.Chrome): The Chrome WebDriver instance configured with specified options.
+        """
+
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=1920x1080")
@@ -57,6 +66,9 @@ class SeleniumBase:
     def getting_target_element(self, by, value, wait_time=10):
         element = self.using_wait(by, value, wait_time)
         return element.get_attribute("outerHTML") if element else None
-
+    
+    def get_element_urls(self, by, value, wait_time=10):
+        element = self.using_wait(by, value, wait_time)
+        return element.get_attribute("href") if element else None
     def close_driver(self):
         self.driver.quit()

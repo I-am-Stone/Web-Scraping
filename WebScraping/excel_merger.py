@@ -4,30 +4,37 @@ from pathlib import Path
 
 class ExcelFileMerger:
 
-    def __init__(self, old_file_path: str, new_file_path: str):
+    def __init__(self, old_file: str, new_file: str):
         """
         Initialize the merger with paths to old and new Excel files.
 
         Args:
-            old_file_path (str): Path to the old Excel file
-            new_file_path (str): Path to the new Excel file
+            old_file (str): Path to the old Excel file
+            new_file (str): Path to the new Excel file
         """
 
-        self.old_file_path = Path(old_file_path)
-        self.new_file_path = Path(new_file_path)
+        self.old_file = Path(old_file)
+        self.new_file = Path(new_file)
 
-        if not self.old_file_path.exists():
-            raise FileNotFoundError(f"Old file not found: {old_file_path}")
-        if not self.new_file_path.exists():
-            raise FileNotFoundError(f"New file not found: {new_file_path}")
+        if not self.old_file.exists():
+            raise FileNotFoundError(f"Old file not found: {old_file}")
+        if not self.new_file.exists():
+            raise FileNotFoundError(f"New file not found: {new_file}")
 
     def clean_course_name(self, df: pd.DataFrame) -> pd.DataFrame:
-        try:
-            if "Course Name" in df.columns:
-                df["Course Name"] = df["Course Name"].str.split("(").str[0].str.strip()
-            return df
-        except:
-            return df
+        """
+        Clean up course names in the DataFrame by removing the part after the first open parenthesis.
+
+        Args:
+            df (pd.DataFrame): The DataFrame containing the course names to clean
+
+        Returns:
+            pd.DataFrame: The DataFrame with the cleaned course names
+        """
+        course_name_column = 'Course Name'
+        if course_name_column in df.columns:
+            df[course_name_column] = df[course_name_column].str.split("(").str[0].str.strip()
+        return df
 
 
     def merge_files(self, output_path: str = "merged_output.xlsx") -> pd.DataFrame:
@@ -41,34 +48,25 @@ class ExcelFileMerger:
             pd.DataFrame: Merged and processed DataFrame
         """
         try:
-            df_old = pd.read_excel(self.old_file_path, engine="openpyxl")
-            df_new = pd.read_excel(self.new_file_path, engine="openpyxl")
-            print("DataFrame contents:", df_new)
-            print("DataFrame columns:", df_new.columns if df_new is not None else "DataFrame is None")
-            df_new = self.clean_course_name(df_new)
+            old_df = pd.read_excel(self.old_file_path, engine="openpyxl")
+            new_df = pd.read_excel(self.new_file_path, engine="openpyxl")
+            new_df = self.clean_course_name(new_df)
 
-            duplicates = df_old[df_old.index.duplicated()]
-            if not duplicates.empty:
-                print("Warning: Duplicates found in old file:")
-                print(duplicates)
+            if new_df.index.duplicated().any():
+                raise ValueError("Duplicates found in new file")
 
-            df_new = df_new.set_index("Course Website")
-            df_old = df_old.set_index("Course Website")
-            df_new.dropna(how="all", inplace=True)
-            df_old.update(df_new)
-            final_df = df_old.reset_index()
+            merged_df = old_df.set_index("Course Website").combine_first(
+                new_df.set_index("Course Website")
+            ).reset_index()
 
             output_dir = Path("merger_file")
             output_dir.mkdir(exist_ok=True)
 
             output_file = output_dir / output_path
 
-            final_df.to_excel(
-                "merger_file/" + output_path, engine="openpyxl", index=False
-            )
-            print(f"Merged file saved successfully to: {output_path}")
+            merged_df.to_excel(output_file, engine="openpyxl", index=False)
 
-            return final_df
+            return merged_df
 
         except Exception as e:
             raise Exception(f"Error during file merger: {str(e)}")

@@ -5,27 +5,38 @@ import json
 from WebScraping.items import WebscrapingItem
 from scrapy.loader import ItemLoader
 
-def english_check(value) -> list[str]:
-    # ietls, tofel, pte
-    certificate = [['6.0','5.5','5.5','5.5','5.5'], ['64','8','7','16','18'],['50','42','42','42','42']]
-    bachelor = [['6.0','6.0','6.0','6.0','6.0'],['64','13','12','18','21'],['50','50','50','50','50']]
-    nursing = [['7.0','7.0','7.0','7.0','7.0'],['94','24','24','23','27'],['66','66','66','66','66']] #nursing and psychology o ielts, 1 tofel, 2 pte
-    master = [['6.5','6.0','6.0','6.0','6.0'],['79','13','12','18','21'],['58','50','50','50','50']] # master exercise and sports, law
-    teaching = [['7.5','7.0','7.0','7.0','7.0'],['94','24','27','24','27'],['66','66','76','76','66']] # master exercise and sports, law
+def get_english_requirements(course_name: str) -> list[list[str]]:
+    """
+    Return English requirements for a given course name.
+    """
+    COURSE_REQUIREMENTS = {
+        "bachelor": [["6.0", "6.0", "6.0", "6.0", "6.0"],
+                    ["64", "13", "12", "18", "21"],
+                    ["50", "50", "50", "50", "50"]],
+        "master": [["6.5", "6.0", "6.0", "6.0", "6.0"],
+                   ["79", "13", "12", "18", "21"],
+                   ["58", "50", "50", "50", "50"]],
+        "nursing": [["7.0", "7.0", "7.0", "7.0", "7.0"],
+                    ["94", "24", "24", "23", "27"],
+                    ["66", "66", "66", "66", "66"]],
+        "teaching": [["7.5", "7.0", "7.0", "7.0", "7.0"],
+                     ["94", "24", "27", "24", "27"],
+                     ["66", "66", "76", "76", "66"]],
+        "certificate": [["6.0", "5.5", "5.5", "5.5", "5.5"],
+                        ["64", "8", "7", "16", "18"],
+                        ["50", "42", "42", "42", "42"]]
+    }
 
-    if "Bachelor of Nursing" and "Psychological Sciences" in value:
-        return nursing
-    elif "Master of Teaching" in value:
-        return teaching
-    elif "Bachelor" in value:
-        return bachelor
-    elif "Master" in value:
-        return master
-    elif "Certificate" and "Diploma" in value:
-        return certificate
-
-    else:
-        print("nothing")
+    if "Bachelor of Nursing" in course_name and "Psychological Sciences" in course_name:
+        return COURSE_REQUIREMENTS["nursing"]
+    elif "Master of Teaching" in course_name:
+        return COURSE_REQUIREMENTS["teaching"]
+    elif "Bachelor" in course_name:
+        return COURSE_REQUIREMENTS["bachelor"]
+    elif "Master" in course_name:
+        return COURSE_REQUIREMENTS["master"]
+    elif "Certificate" in course_name and "Diploma" in course_name:
+        return COURSE_REQUIREMENTS["certificate"]
 
 
 
@@ -95,7 +106,7 @@ class SwinSpider(scrapy.Spider):
 
 
 
-        english = english_check(course_name)
+        english = get_english_requirements(course_name)
 
         print(city)
 
@@ -142,6 +153,6 @@ class SwinSpider(scrapy.Spider):
 
 
 
-        # yield loader.load_item()
+        yield loader.load_item()
 
 
