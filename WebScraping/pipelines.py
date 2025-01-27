@@ -16,6 +16,18 @@ import logging
 
 class MergercrapingPipeline:
     def __init__(self):
+        """
+        Initialize the pipeline.
+
+        This pipeline stores the scraped items in a list and exports them
+        to an Excel file once the spider is finished.
+
+        The Excel file is saved in the directory specified by the
+        `exporting_file` attribute.
+
+        The columns of the Excel file are specified by the `all_columns`
+        attribute.
+        """
         self.items = []
 
     def process_item(self, item, spider):
@@ -45,6 +57,18 @@ class WebscrapingPipeline:
     Pipeline for processing the siper items and exporting data in excel
     """
     def __init__(self):
+        """
+        Initialize the pipeline.
+
+        This pipeline stores the scraped items in a list and exports them
+        to an Excel file once the spider is finished.
+
+        The Excel file is saved in the directory specified by the
+        `exporting_file` attribute.
+
+        The columns of the Excel file are specified by the `all_columns`
+        attribute.
+        """
         self.items:list[Dict[Any,Any]] = []
         self.logger = logging.getLogger(__name__)
 

@@ -18,10 +18,12 @@ class TafeSpider(scrapy.Spider):
     def parse(self, response):
         self.selenium.get_page_urls(response.url)
 
-        courses = '//a[contains(@class,"group")]'
-        courses = self.selenium.get_element_urls(By.XPATH, courses) 
-        self.logger.info(f"Total Courses: {len(courses)}")
+        course_xpath = '//a[contains(@class,"group")]'
+        courses = self.selenium.get_element_urls(By.XPATH, course_xpath) 
+        # self.logger.info(f"Total Courses: {courses}")
         for course in courses:
+            print(course)
             if course:
-                yield response.follow(course, callback=self.parse1) 
-        
+                yield response.follow(course, callback=self.parse1)
+    def parse1(self, response):
+        pass        

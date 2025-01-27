@@ -62,13 +62,30 @@ class SeleniumBase:
         except (TimeoutException, NoSuchElementException) as e:
             print(f"Error finding element {value}: {str(e)}")
             return None
+    
+    def list_using_wait(self, by, value, wait_time=10):
+        """
+        Finding Element in page and waiting for it to load
+        """
+        try:
+            wait = WebDriverWait(self.driver, wait_time)
+            element = wait.until(EC.presence_of_all_elements_located((by, value)))
+            return element
+        except (TimeoutException, NoSuchElementException) as e:
+            print(f"Error finding element {value}: {str(e)}")
+            return None
 
     def getting_target_element(self, by, value, wait_time=10):
         element = self.using_wait(by, value, wait_time)
         return element.get_attribute("outerHTML") if element else None
     
     def get_element_urls(self, by, value, wait_time=10):
-        element = self.using_wait(by, value, wait_time)
-        return element.get_attribute("href") if element else None
+        elements = self.list_using_wait(by, value, wait_time)
+        if elements:
+            urls_list = [element.get_attribute("href") for element in elements]
+            return urls_list
+        else:
+            return []
+
     def close_driver(self):
         self.driver.quit()
