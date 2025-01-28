@@ -29,6 +29,45 @@ class TextCleaner:
         if value is None:
             return None
         return re.sub(r'\d+', '', value)
+class IntakeProcessor:
+    
+    Intake_Mapping = {
+    'Feb': 'February',
+    'Jul': 'July',
+    'Jan': 'January',
+    'Mar': 'March',
+    'Apr': 'April',
+    'May': 'May',
+    'Jun': 'June',
+    'Aug': 'August',
+    'Sep': 'September',
+    'Sept': 'September',
+    'Oct': 'October',
+    'Nov': 'November',
+    'Dec': 'December'
+}
+    @staticmethod
+    def process_intake(value:Optional[str]) -> str:
+        intakes = []
+        """
+        Process intake value and map it to a corresponding value from the Intake_Mapping dictionary.
+        
+        Args:
+            value (Optional[str]): The intake value to process.
+            
+        Returns:
+            str: The mapped value corresponding to the intake value.
+        """
+        if not value:
+            return ""
+        value = TextCleaner.clean_base(value)
+        value = TextCleaner.remove_numbers(value)
+        for key, mapped_value in IntakeProcessor.Intake_Mapping.items():
+            if key in value:
+                intakes.append(mapped_value)
+        if intakes:
+            return ", ".join(intakes)
+        return ""
 
 class DurationProcessor:
     DURATION_MAPPING = {
@@ -52,6 +91,8 @@ class DurationProcessor:
             if key in value:
                 return mapped_value
         return ""
+    
+
     
     @staticmethod
     def clean_duration(value: Optional[str]) -> Optional[str]:
@@ -91,11 +132,6 @@ class FeeProcessor:
             
         # print(total)
         return numbers[0] if numbers else None
-
-class IntakeProcessor:
-    @staticmethod
-    def clean_intake(value:Optional[str]) -> Optional[str]:
-        pass
 
 
 class WebscrapingItem(scrapy.Item):
@@ -153,7 +189,7 @@ class WebscrapingItem(scrapy.Item):
     
     # Intake information
     Intake_Month = scrapy.Field(
-        input_processor=MapCompose(TextCleaner.clean_html),
+        input_processor=MapCompose(TextCleaner.clean_html, IntakeProcessor.process_intake),
         output_processor=TakeFirst()
     )
     Intake_Day = scrapy.Field()
