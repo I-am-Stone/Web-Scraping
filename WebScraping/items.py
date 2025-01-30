@@ -133,6 +133,34 @@ class FeeProcessor:
         # print(total)
         return numbers[0] if numbers else None
 
+class DegreeLevelProcessor:
+    DEGREE_LEVEL_MAPPING = {
+        'certificate': 'Certificate & Diploma',
+        'Certificate': 'Certificate & Diploma',
+        'diploma': 'Certificate & Diploma',
+        'Diploma': 'Certificate & Diploma',
+        'Bachelor': 'Bachelor',
+        'bachelor': 'Bachelor',
+        'bachelor degree': 'Bachelor',
+        'bachelor degree': 'Bachelor',
+        'Master': 'Master',
+        'master': 'Master',
+        'master degree': 'Master', 
+        'master degree': 'Master',    
+        'graduate': 'Graduate Certificate & Diploma', 
+        'graduate degree': 'Graduate Certificate & Diploma', 
+        'graduate degree': 'Graduate Certificate & Diploma',    
+        'graduate certificate': 'Graduate Certificate & Diploma',     
+        'graduate certificate': 'Graduate Certificate & Diploma',     
+    @staticmethod
+    def process_degree_level(value: Optional[str]) -> str:
+        if not value:
+            return ""
+        value = TextCleaner.clean_base(value)
+        for key, mapped_value in DegreeLevelProcessor.DEGREE_LEVEL_MAPPING.items():
+            if key in value:
+                return mapped_value
+        return ""
 
 class WebscrapingItem(scrapy.Item):
     # Basic course information
