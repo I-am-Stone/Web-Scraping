@@ -10,12 +10,14 @@ from selenium.common.exceptions import (
     WebDriverException,
     TimeoutException,
 )
+import logging
 
 
 class SeleniumBase:
     """
     Reusable selnium for using in diffrent spiders
     """
+
 
     def __init__(self):
         """
@@ -39,6 +41,7 @@ class SeleniumBase:
             options=chrome_options,
         )
         self.driver.implicitly_wait(10)
+        self.logger = logging.getLogger(__name__)
 
     def get_page_urls(self, url, wait_time=10):
         """
@@ -57,8 +60,16 @@ class SeleniumBase:
         """
         try:
             wait = WebDriverWait(self.driver, wait_time)
-            element = wait.until(EC.presence_of_element_located((by, value)))
-            return element
+            btn = wait.until(EC.element_to_be_clickable((By.XPATH,'//button[contains(@id,"tab_1_4")]')))
+            if btn:
+                self.logger.info(f"""
+                    ------------------------
+                    This is btn {btn}
+                    ----------------------
+                """)
+                btn.click()
+                element = wait.until(EC.presence_of_element_located((by, value)))
+                return element
         except (TimeoutException, NoSuchElementException) as e:
             print(f"Error finding element {value}: {str(e)}")
             return None

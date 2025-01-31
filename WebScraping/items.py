@@ -141,17 +141,19 @@ class DegreeLevelProcessor:
         'Diploma': 'Certificate & Diploma',
         'Bachelor': 'Bachelor',
         'bachelor': 'Bachelor',
+        'Undergraduate': 'Bachelor',
         'bachelor degree': 'Bachelor',
         'bachelor degree': 'Bachelor',
         'Master': 'Master',
         'master': 'Master',
         'master degree': 'Master', 
         'master degree': 'Master',    
-        'graduate': 'Graduate Certificate & Diploma', 
+        'Post Graduate': 'Master', 
         'graduate degree': 'Graduate Certificate & Diploma', 
         'graduate degree': 'Graduate Certificate & Diploma',    
         'graduate certificate': 'Graduate Certificate & Diploma',     
-        'graduate certificate': 'Graduate Certificate & Diploma',     
+        'graduate certificate': 'Graduate Certificate & Diploma',
+    }    
     @staticmethod
     def process_degree_level(value: Optional[str]) -> str:
         if not value:
@@ -166,7 +168,7 @@ class WebscrapingItem(scrapy.Item):
     # Basic course information
     Course_Website = scrapy.Field()
     Course_Name = scrapy.Field(
-        input_processor=MapCompose(TextCleaner.clean_html, str.title),
+        input_processor=MapCompose(TextCleaner.clean_html),
         output_processor=TakeFirst()
     )
     Course_Description = scrapy.Field(
@@ -244,7 +246,7 @@ class WebscrapingItem(scrapy.Item):
     Category = scrapy.Field()
     Sub_Category = scrapy.Field()
     Language = scrapy.Field()
-    Degree_level = scrapy.Field()
+    Degree_level = scrapy.Field(IntakeProcessor=MapCompose(TextCleaner.clean_base, DegreeLevelProcessor.process_degree_level))
     Domestic_only = scrapy.Field()
     Other_Test = scrapy.Field()
     Academic_Score = scrapy.Field()
