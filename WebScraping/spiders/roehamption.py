@@ -2,12 +2,14 @@ import scrapy
 import json
 from selenium.webdriver.common.by import By
 from WebScraping.selenium import SeleniumBase
+from scrapy.loader import ItemLoader
+from WebScraping.items import WebscrapingItem
 class RoehamptonSpider(scrapy.Spider):
     name = 'roe'
     file_name = 'University of Roehamption 2025'
     start_urls = [
-        'https://www.roehampton.ac.uk/study/undergraduate-courses/',
-        'https://www.roehampton.ac.uk/study/postgraduate-taught-courses/',
+        'https://www.roehampton.ac.uk/study/undergraduate-courses/?page=10',
+        'https://www.roehampton.ac.uk/study/postgraduate-taught-courses/?page=8',
         'https://www.roehampton.ac.uk/study/higher-technicals/'
     ]
     def __init__(self, *args, **kwargs):
@@ -31,9 +33,24 @@ class RoehamptonSpider(scrapy.Spider):
         carrer = response.xpath(
             '//h2[contains(.,"Career")]//following-sibling::div//ul'
         ).get()
+        duration = response.xpath('//p[contains(.,"Duration: ")]//following-sibling::p').get()
+        loader = ItemLoader(item=WebscrapingItem(), response=response)
 
         if international_fee:
-            year = "2025"
-            term = "Year"
-            currency = "GBP"
+            loader.add_value("Fee_Year", '2025')
+            loader.add_value("Fee_Term", 'Year')
+            loader.add_value("Currency", 'GBP')
+
+
+        loader.add_value("Course_Website", response.url)
+        loader.add_value("Course_Name", course_name)
+        loader.add_value("Intake_Month", intake)
+        loader.add_value("International_Fee", international_fee)
+        loader.add_value("Career", carrer)
+        loader.add_value("Duration", duration)
+        loader.add_value("Duration_Term", duration)
+
+        yield loader.load_item()
         
+        
+ 
