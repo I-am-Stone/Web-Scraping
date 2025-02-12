@@ -29,6 +29,35 @@ class TextCleaner:
         if value is None:
             return None
         return re.sub(r'\d+', '', value)
+    
+class StudyLoadProcessor:
+    study_laod_mapping = {
+        'Part-time': 'Part Time',
+        'Full-Time': 'Full Time',
+    }
+
+    @staticmethod
+    def process_study_load(value: Optional[str]) -> str:
+        """
+        Process the study load value and map it to a corresponding formatted value.
+
+        Args:
+            value (Optional[str]): The study load value to process.
+
+        Returns:
+            str: The formatted study load value, or an empty string if no mapping is found.
+        """
+
+        if not value:
+            return ""
+        value = TextCleaner.clean_base(value[0])
+        for key, mapped_value in StudyLoadProcessor.study_laod_mapping.items():
+            if key in value:
+                return mapped_value
+        return ""
+
+
+
 class IntakeProcessor:
     
     Intake_Mapping = {
@@ -60,8 +89,8 @@ class IntakeProcessor:
         """
         if not value:
             return ""
-        value = TextCleaner.clean_base(value)
-        value = TextCleaner.remove_numbers(value)
+        value = TextCleaner.clean_base(value[0])
+        value = TextCleaner.remove_numbers(value[0])
         for key, mapped_value in IntakeProcessor.Intake_Mapping.items():
             if key in value:
                 intakes.append(mapped_value)
@@ -140,7 +169,8 @@ class DegreeLevelProcessor:
         'diploma': 'Certificate & Diploma',
         'Diploma': 'Certificate & Diploma',
         'Bachelor': 'Bachelor',
-        'bachelor': 'Bachelor',
+        'BA': 'Bachelor',
+        'BSc': 'Bachelor',
         'Undergraduate': 'Bachelor',
         'bachelor degree': 'Bachelor',
         'bachelor degree': 'Bachelor',
@@ -148,6 +178,9 @@ class DegreeLevelProcessor:
         'master': 'Master',
         'master degree': 'Master', 
         'master degree': 'Master',    
+        'MSc': 'Master',    
+        'MA': 'Master',    
+        'LLM': 'Master',    
         'Post Graduate': 'Master', 
         'graduate degree': 'Graduate Certificate & Diploma', 
         'graduate degree': 'Graduate Certificate & Diploma',    
@@ -158,7 +191,7 @@ class DegreeLevelProcessor:
     def process_degree_level(value: Optional[str]) -> str:
         if not value:
             return ""
-        value = TextCleaner.clean_base(value)
+        value = TextCleaner.clean_base(value[0])
         for key, mapped_value in DegreeLevelProcessor.DEGREE_LEVEL_MAPPING.items():
             if key in value:
                 return mapped_value
