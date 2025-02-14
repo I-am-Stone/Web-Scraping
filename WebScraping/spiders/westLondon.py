@@ -3,6 +3,9 @@ from scrapy.loader import ItemLoader
 from WebScraping.items import WebscrapingItem
 from typing import Any, Dict
 import re
+from WebScraping.selenium import SeleniumBase
+from selenium.webdriver.common.by import By
+
 def ielts_processor(value: str) -> Dict[str, Any]:
     try:
           values = re.findall(r'\d+\.*\d*', value)
@@ -22,6 +25,10 @@ class WestLondonSpider(scrapy.Spider):
     }
 }
 
+    def __init__(self, *args, **kwargs):
+        super(WestLondonSpider, self).__init__(*args, **kwargs)
+        self.selenium = SeleniumBase()
+
 
     def parse(self, response):
         courses = response.xpath('//div[contains(@class,"views-row")]//a[contains(@class,"link u-no-underline")]/@href').getall()
@@ -37,57 +44,35 @@ class WestLondonSpider(scrapy.Spider):
                 response.follow(page, callback=self.parse)
     
     def parse1(self, response):
+        self.selenium.get_page_urls(response.url)
         self.logger.info(f" Courses Urls : {response.url}")
         course_name = response.xpath('//div[contains(@class,"page-header__title u-relative")]//span/text()').get()
         duration = response.xpath('//div[contains(text(),"Duration:")]/text()').get()
         city = response.xpath('//input[contains(@id,"location")]/@value').get()
         duration_term = response.xpath('//div[contains(text(),"Duration:")]/text()').get()
-        fees = response.xpath('//option[contains(text(),"International")]').get()
         
-        study_load = response.xpath('//span[contains(text(),"Delivery")]//following-sibling::text()').get()
-        course_des = response.xpath('//div[contains(@id,"introduction")]').get()
-        course_structure = response.xpath('//div[contains(@id,"collapseWhatStudy")]//h3 | //div[contains(@id,"collapseWhatStudy")]//ul').getall()
-        carrer = response.xpath('//p[contains(text(),"employed")]//following-sibling::ul').get()
-        self.logger.info(f"""---------------------------------
-                         Course Structure: {course_structure}
-                         ---------------------------------""")
-        ielts = response.xpath('(//li[contains(.,"IELTS")]//text())[2]').get()
-        tofel = response.xpath('(//li[contains(.,"TOEFL-iBT")]//text())[2]').get()
-        pte = response.xpath('(//li[contains(.,"PTE")]//text())[2]').get()
+        intake_xpath = '//label[contains(text(),"Start date")]//following-sibling::div/div'
+        intake_month = self.selenium.getting_target_element(By.XPATH, intake_xpath)
+        
+        course_des = response.xpath('//h2[contains(text(), "study")]//parent::div//following-sibling::div').get()
+        course_structure = response.xpath('//h3[contains(text(),"Compulsory modules")]//following-sibling::div//li//span').get()
 
-        ielts = ielts_processor(ielts)
-        tofel = ielts_processor(tofel)
-        pte = ielts_processor(pte)
+        self.logger.into(f" course_structure : {course_structure}")
+        fees_xpath = '//option[contains(text(),"International")]'
+        fees = self.selenium.getting_target_element(By.XPATH, fees_xpath)
+        self.logger.info(f" Fees : {fees}")
 
         loader = ItemLoader(item=WebscrapingItem(), response=response)
         loader.add_value("Course_Website", response.url)
         loader.add_value("Course_Name", course_name)
         loader.add_value("Duration", duration)
         loader.add_value("Duration_Term", duration_term)
-        loader.add_value("Study_Load", study_load)
-        loader.add_value("Course_Description", course_des)
-        loader.add_value("Course_Structure", course_structure)
-        loader.add_value("Career", carrer)
         loader.add_value("City", city)
-
-        loader.add_value('IELTS_Overall', ielts[0])
-        loader.add_value('IELTS_Reading', ielts[1])
-        loader.add_value('IELTS_Writing', ielts[1])
-        loader.add_value('IELTS_Listening', ielts[1])
-        loader.add_value('IELTS_Speaking', ielts[1])
-
-        loader.add_value('TOEFL_Overall', tofel[0])
-        loader.add_value('TOEFL_Reading', tofel[1])
-        loader.add_value('TOEFL_Writing', tofel[1])
-        loader.add_value('TOEFL_Listening', tofel[1])
-        loader.add_value('TOEFL_Speaking', tofel[1])
-
-        loader.add_value('PTE_Overall', pte[0])
-        loader.add_value('PTE_Reading', pte[1])
-        loader.add_value('PTE_Writing', pte[1])
-        loader.add_value('PTE_Listening', pte[1])
-        loader.add_value('PTE_Speaking', pte[1])
-
+        loader.add_value("International_Fee", fees)
+        loader.add_value("Intake_Month", intake_month)
+        loader.add_value("Course_Structure", course_structure)
+        loader.add_value("Course_Description", course_des)
+       
         # yield loader.load_item()
 
         

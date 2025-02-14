@@ -66,7 +66,7 @@ class WestminsteSpider(scrapy.Spider):
         intake = response.xpath('//button[contains(@aria-labelledby,"attendanceSelector")]/text()').get()
         ietls = response.xpath('//li[contains(text(),"IELTS")]').get()
         if not ietls:
-            ielts = response.xpath('//p[contains(text(),"IELTS")]//text()').get()
+            ietls = response.xpath('//p[contains(text(),"IELTS")]//text()').get()
         ietls = ielts_processor(ietls)
 
         print("Program_urls::", response.url)

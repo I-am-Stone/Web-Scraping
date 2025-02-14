@@ -25,7 +25,7 @@ CONCURRENT_REQUESTS = 3
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-# DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 2
 # RANDOMIZE_DOWNLOAD_DELAY = True
 # # In your settings.py
 # RETRY_ENABLED = True

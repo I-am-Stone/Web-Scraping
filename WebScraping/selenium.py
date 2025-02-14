@@ -87,8 +87,28 @@ class SeleniumBase:
             return None
 
     def getting_target_element(self, by, value, wait_time=10):
+        """
+        Getting target element from page and waiting for it to load
+        
+        
+        :param by: a selenium.webdriver.common.by.By object
+        :param value: a string representing the value to identify the element
+        :param wait_time: an integer representing the time to wait for the element to load
+        :return: the innerHTML of the element if found else None
+        """
         element = self.using_wait(by, value, wait_time)
-        return element.get_attribute("outerHTML") if element else None
+        if element:
+            return element.get_attribute("innerHTML")
+    
+    
+    def getting_target_elements(self, by, value, wait_time=10):
+        elements = self.list_using_wait(by, value, wait_time)
+        
+        if elements:
+            element_list = [element.get_attribute("innerHTML") for element in elements]
+            return element_list
+        else:
+            return []
     
     def get_element_urls(self, by, value, wait_time=10):
         elements = self.list_using_wait(by, value, wait_time)
