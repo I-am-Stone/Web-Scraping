@@ -69,8 +69,8 @@ class RoehamptonSpider(scrapy.Spider):
         loader.add_value("Duration", duration)
         loader.add_value("Course_Structure", course_structure)
         loader.add_value("Duration_Term", duration)
+        loader.add_value("Study_Load", duration)
 
         yield loader.load_item()
         
         
- 

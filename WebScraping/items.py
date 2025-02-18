@@ -33,11 +33,14 @@ class TextCleaner:
 class StudyLoadProcessor:
     study_laod_mapping = {
         'Part-time': 'Part Time',
+        'part-time': 'Part Time',
         'Full-Time': 'Full Time',
+        'full-time': 'Full Time',
     }
 
     @staticmethod
     def process_study_load(value: Optional[str]) -> str:
+        study_load=[]
         """
         Process the study load value and map it to a corresponding formatted value.
 
@@ -53,7 +56,10 @@ class StudyLoadProcessor:
         value = TextCleaner.clean_base(value[0])
         for key, mapped_value in StudyLoadProcessor.study_laod_mapping.items():
             if key in value:
-                return mapped_value
+                return study_load.append(mapped_value)
+            if study_load:
+                return ", ".join(study_load)
+
         return ""
 
 
@@ -62,21 +68,35 @@ class IntakeProcessor:
     
     Intake_Mapping = {
     'Feb': 'February',
+    'February': 'February',
     'Jul': 'July',
+    'July': 'July',
     'Jan': 'January',
+    'January': 'January',
     'Mar': 'March',
+    'March': 'March',
     'Apr': 'April',
+    'April': 'April',
     'May': 'May',
     'Jun': 'June',
+    'June': 'June',
+    'Jul': 'July',
+    'July': 'July',
     'Aug': 'August',
+    'August': 'August',
     'Sep': 'September',
     'Sept': 'September',
+    'September': 'September',
     'Oct': 'October',
+    'October': 'October',
     'Nov': 'November',
-    'Dec': 'December'
+    'November': 'November',
+    'Dec': 'December',
+    'December': 'December'
 }
     @staticmethod
     def process_intake(value:Optional[str]) -> str:
+
         intakes = []
         """
         Process intake value and map it to a corresponding value from the Intake_Mapping dictionary.
@@ -252,7 +272,7 @@ class WebscrapingItem(scrapy.Item):
     
     # Intake information
     Intake_Month = scrapy.Field(
-        input_processor=MapCompose(TextCleaner.clean_html, IntakeProcessor.process_intake),
+        input_processor=MapCompose(TextCleaner.clean_html),
         output_processor=TakeFirst()
     )
     Intake_Day = scrapy.Field()

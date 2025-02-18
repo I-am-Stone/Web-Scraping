@@ -57,7 +57,7 @@ class WestLondonSpider(scrapy.Spider):
         course_des = response.xpath('//h2[contains(text(), "study")]//parent::div//following-sibling::div').get()
         course_structure = response.xpath('//h3[contains(text(),"Compulsory modules")]//following-sibling::div//li//span').get()
 
-        self.logger.into(f" course_structure : {course_structure}")
+        self.logger.info(f" course_structure : {course_structure}")
         fees_xpath = '//option[contains(text(),"International")]'
         fees = self.selenium.getting_target_element(By.XPATH, fees_xpath)
         self.logger.info(f" Fees : {fees}")
