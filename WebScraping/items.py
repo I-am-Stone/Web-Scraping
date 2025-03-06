@@ -131,14 +131,7 @@ class DurationProcessor:
     }
     
     @staticmethod
-    def process_term(value: Optional[str]) -> str:
-        """Process duration term with simplified logic."""
-        if not value:
-            return ""
-        value = TextCleaner.clean_base(value)
-        for key, mapped_value in DurationProcessor.DURATION_MAPPING.items():
-            if key in value:
-                return mapped_value
+    def process_term(value: Optional[str]TypeError: to_unicode must receive bytes or str, got Selector
         return ""
     
 
@@ -228,7 +221,15 @@ class WebscrapingItem(scrapy.Item):
         input_processor=MapCompose(TextCleaner.clean_html),
         output_processor=TakeFirst()
     )
-    
+            item.add_value('Course_Description', course_description)
+        item.add_value('Duration_Term', duration)
+        item.add_value('Study_Load', duration)
+        item.add_value('Career', carrer)
+        item.add_value('International_Fee', inter_fee)
+        item.add_value('Fee_Year', year)
+        item.add_value('Fee_Term', term)
+        item.add_value('Currency', currency)
+        
     # Location and career info
     Career = scrapy.Field(
         input_processor=MapCompose(TextCleaner.clean_base),

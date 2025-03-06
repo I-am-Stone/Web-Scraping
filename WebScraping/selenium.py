@@ -117,6 +117,65 @@ class SeleniumBase:
             return urls_list
         else:
             return []
+    
+    def scroll_list_using_wait(self, by, value, wait_time=10, max_scrolls=30, scroll_pause_time=2.0):
+        try:
+            wait = WebDriverWait(self.driver, wait_time)
+            
+            # Initial attempt to find elements
+            elements = wait.until(EC.presence_of_all_elements_located((by, value)))
+            initial_count = len(elements)
+            self.logger.info(f"Initially found {initial_count} elements")
+            
+            # Scroll multiple times with different techniques
+            for scroll_num in range(max_scrolls):
+                # Try different scroll methods alternately
+                if scroll_num % 3 == 0:
+                    # Method 1: Scroll to bottom
+                    self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                elif scroll_num % 3 == 1:
+                    # Method 2: Scroll in increments
+                    self.driver.execute_script(f"window.scrollBy(0, 1000);")
+                else:
+                    # Method 3: Scroll to specific point
+                    scroll_point = (scroll_num + 1) * 1000
+                    self.driver.execute_script(f"window.scrollTo(0, {scroll_point});")
+                
+                # Wait for content to load
+                import time
+                time.sleep(scroll_pause_time)
+                
+                # Check elements after scrolling
+                elements = wait.until(EC.presence_of_all_elements_located((by, value)))
+                current_count = len(elements)
+                
+                self.logger.info(f"Scroll #{scroll_num+1}: Found {current_count} elements")
+                
+                # If we've found all expected elements, we can stop
+              
+                    
+                # If no new elements after several scrolls, try clicking a "load more" button if it exists
+                if current_count == initial_count and scroll_num > 3:
+                    try:
+                        load_more = self.driver.find_elements(By.XPATH, "//button[contains(text(), 'Load more') or contains(text(), 'Show more')]")
+                        if load_more and len(load_more) > 0:
+                            self.logger.info("Attempting to click 'Load more' button")
+                            load_more[0].click()
+                            time.sleep(2)  # Wait after clicking
+                    except Exception as e:
+                        self.logger.info(f"No load more button found or error clicking it: {e}")
+                
+                initial_count = current_count
+            
+            self.logger.info(f"Scrolling complete. Found {len(elements)} elements after {max_scrolls} scrolls")
+            return elements
+            
+        except (TimeoutException, NoSuchElementException) as e:
+            self.logger.error(f"Error finding elements {value}: {str(e)}")
+            return None
+    
+
+
 
     def close_driver(self):
         self.driver.quit()
